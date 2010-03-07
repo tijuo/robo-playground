@@ -1,0 +1,5 @@
+Robo Playground
+
+An experiment with evolutionary algorithms using battle robots in an arena.
+
+* Requires the Allegro library
