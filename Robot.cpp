@@ -6,8 +6,8 @@
 
 #include <iostream>
 
-Robot::Robot(const char *filename, RobotArena * const arena ) : _dna(NULL),
-  brain(NULL), _maxEnergy(initialEnergy), robotArena(arena)
+Robot::Robot(const char *filename, RobotArena * const arena ) :
+  ArenaObject(arena), _dna(NULL), brain(NULL), _maxEnergy(initialEnergy)
 {
   if( filename != NULL )
   {
@@ -28,8 +28,8 @@ Robot::Robot(const char *filename, RobotArena * const arena ) : _dna(NULL),
   _energy = initialEnergy;
 }
 
-Robot::Robot(const RobotDna &dna, RobotArena * const arena ) : 
-  _maxEnergy(initialEnergy), robotArena(arena)
+Robot::Robot(const RobotDna &dna, RobotArena * const arena ) :
+  ArenaObject(arena), _maxEnergy(initialEnergy)
 {
 //  std::cout << "Creating dna" << std::endl;
   this->_dna = new RobotDna(dna);
@@ -50,8 +50,8 @@ Robot::Robot(const RobotDna &dna, RobotArena * const arena ) :
   _energy = initialEnergy;
 }
 
-Robot::Robot( const Robot &robot ) : _dna(NULL), brain(NULL), 
-  _maxEnergy(initialEnergy), robotArena(robot.robotArena)
+Robot::Robot( const Robot &robot ) : ArenaObject(robot.robotArena), _dna(NULL),
+  brain(NULL), _maxEnergy(initialEnergy)
 {
   std::cout << "Copying robot" << std::endl;
 

@@ -1,9 +1,10 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-#include "RobotDna.h"
+#include "ArenaObject.h"
 #include "Brain.h"
 #include "RobotArena.h"
+#include "RobotDna.h"
 #include "Vector2d.h"
 
 #define ATTACK_ENERGY	2.0
@@ -20,10 +21,10 @@ enum OutputNames { SET_VEL_X, SET_VEL_Y,/*, SET_TURR_ROT, */ATTACK };
 
 const float initialEnergy = 2000.0;
 
-class Robot
+class Robot : public ArenaObject
 {
   public:
-    Robot() : _dna(NULL), brain(NULL), _maxEnergy(initialEnergy), robotArena(NULL) { }
+    Robot() : _dna(NULL), brain(NULL), _maxEnergy(initialEnergy) { }
     Robot(const char *filename, RobotArena * const arena );
     Robot( const Robot &robot );
     Robot(const RobotDna &dna, RobotArena * const arena );
@@ -55,13 +56,11 @@ class Robot
 
     void doDamage( unsigned int damage ) 
       { _hp -= (damage >= _hp ? _hp : damage); }
-    void think();
     void setEnergy( float val )
       { _energy = (val < 0 ? 0 : (val > _maxEnergy ? _maxEnergy : val )); }
-    void setPosition( const Vector2d &pos ) { _position = pos; }
+    void setVelocity( const Vector2d & ) {}
+    void think();
 
-    Vector2d position() const { return _position; }
-    Vector2d velocity() const { return _velocity; }
     RobotDna *dna() const { return _dna; }
 //    Brain getBrain() const { return *brain; }
     unsigned int attackPower() const { return _attackPwr; }
@@ -92,10 +91,9 @@ class Robot
     float getOutput(enum OutputNames output) const
       { return brain->getOutput(output); }
 
-  private:
+  protected:
     RobotDna *_dna;
     Brain *brain;
-    Vector2d _velocity, _position;
     unsigned int _attackPwr, _defensePwr;
     unsigned int _maxSpeed;
     unsigned int _hp, _maxHP;
@@ -104,7 +102,6 @@ class Robot
     // Color color;
     //unsigned int id;
     float _maxEnergy;
-    RobotArena *robotArena;
     friend class RobotArena;
 };
 

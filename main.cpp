@@ -8,7 +8,7 @@
 #include <allegro.h>
 #include <cmath>
 
-#define NUM_ROBOTS	20
+#define NUM_ROBOTS	5
 #define max(a,b)	(a > b ? a : b)
 
 unsigned score[NUM_ROBOTS];
@@ -110,7 +110,10 @@ void addKills()
     	maxAccuracy = fmax(maxAccuracy, robots[i]->hitCount() / (double)robots[i]->shotCount());
 
     if( robots[i]->shotCount() > 0 )
-      score[i] += pow( 2, 12 * (robots[i]->hitCount() / (double)robots[i]->shotCount()) );
+      score[i] += 50*pow( 3, 6 * (robots[i]->hitCount() / (double)robots[i]->shotCount()) );
+
+    if( robots[i]->hitCount() == 0 && robots[i]->shotCount() > 0 )
+      score[i] -= 0.1 * robots[i]->shotCount();
   }
 }
 
@@ -143,17 +146,18 @@ int main(int argc, char *argv[])
 //  Robot *test = new Robot(NULL, &arena);
   //srand( time(NULL) );
 
-  robots[1] = new Robot("dna/robo_dna1.dna", &arena );
-  robots[2] = new Robot("dna/robo_dna2.dna", &arena );
-  robots[3] = new Robot("dna/robo_dna3.dna", &arena );
-  robots[4] = new Robot("dna/robo_dna4.dna", &arena );
-  robots[5] = new Robot("dna/robo_dna5.dna", &arena );
-  robots[6] = new Robot("dna/robo_dna6.dna", &arena );
-  robots[7] = new Robot("dna/robo_dna7.dna", &arena );
-  robots[8] = new Robot("dna/robo_dna8.dna", &arena );
-  robots[9] = new Robot("dna/robo_dna9.dna", &arena );
-  robots[0] = new Robot("dna/robo_dna0.dna", &arena );
+  robots[0] = new Robot("dna/robo_dna5.dna", &arena );
+  robots[1] = new Robot("dna/robo_dna6.dna", &arena );
+  robots[2] = new Robot("dna/robo_dna7.dna", &arena );
+  robots[3] = new Robot("dna/robo_dna8.dna", &arena );
+  robots[4] = new Robot("dna/robo_dna9.dna", &arena );
+//  robots[5] = new Robot("dna/robo_dna5.dna", &arena );
+//  robots[6] = new Robot("dna/robo_dna6.dna", &arena );
+//  robots[7] = new Robot("dna/robo_dna7.dna", &arena );
+//  robots[8] = new Robot("dna/robo_dna8.dna", &arena );
+//  robots[9] = new Robot("dna/robo_dna9.dna", &arena );
 
+/*
   robots[11] = new Robot("dna/robo_dna1.dna", &arena );
   robots[12] = new Robot("dna/robo_dna2.dna", &arena );
   robots[13] = new Robot("dna/robo_dna3.dna", &arena );
@@ -170,7 +174,7 @@ int main(int argc, char *argv[])
     for( unsigned j=0; j < 1000; j++ )
       robots[i]->dna()->mutate();
   }
-
+*/
   for( unsigned i=0; i < NUM_ROBOTS; i++ )
     arena.addRobot(*robots[i], (unsigned)rand() % arena.getWidth(), (unsigned)rand() % arena.getHeight() );
 
@@ -221,7 +225,7 @@ int main(int argc, char *argv[])
     for( unsigned i=0; i < NUM_ROBOTS; i++ )
     {
       if( robots[i]->killCount() == 0 )
-        score[i] -= 100;
+        score[i] -= 40;
 
       if( robots[i]->hitCount() == 0 )
         score[i] -= 150;
@@ -238,8 +242,16 @@ int main(int argc, char *argv[])
 
       robot1->dna()->crossover( *robot2->dna(), &childDna, NULL );
 
-      for( unsigned j=0; j < 1 + ((unsigned)rand() % 100 == 0 ? 3 : 0); j++ )
-        childDna->mutate();
+      if( bestScore == 0 )
+      {
+        for( unsigned j=0; j < 300; j++ )
+          childDna->mutate();
+      }
+      else if( abs( bestScore - averageScore ) < 50 )
+      {
+        for( int j=0; j < 5; j++ )
+          childDna->mutate();
+      }
 
       robots2[i] = new Robot( *childDna, &arena );
 
