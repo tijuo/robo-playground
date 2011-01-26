@@ -7,16 +7,16 @@
 class Vector2d 
 {
   public:
-    Vector2d(float _x=0.0, float _y=0.0) : x(_x), y(_y) { }
-    Vector2d( const Vector2d &v ) : x(v.x), y(v.y) { }
+    Vector2d(float xVal=0.0, float yVal=0.0) : _x(xVal), _y(yVal) { }
+    Vector2d( const Vector2d &v ) : _x(v._x), _y(v._y) { }
     ~Vector2d() { }
 
-    float magnitude() const { return sqrt(x*x + y*y); }
-    float getX() const { return x; }
-    float getY() const { return y; }
+    float magnitude() const { return sqrt(_x*_x + _y*_y); }
+    float x() const { return _x; }
+    float y() const { return _y; }
 
-    void setX( float val ) { x = val; }
-    void setY( float val ) { y = val; }
+    void setX( float val ) { _x = val; }
+    void setY( float val ) { _y = val; }
 
     Vector2d operator+(const Vector2d &v) const;
     Vector2d operator-(const Vector2d &v) const;
@@ -24,13 +24,11 @@ class Vector2d
     Vector2d operator/(float scalar) const;
     float operator*(const Vector2d &v) const;
     Vector2d normalize() const;
-    std::string str() { std::stringstream s;
-    s << "(" << x << "," << y << ")";
-    return s.str();
-    }
+
+    std::string str() const;
 
   private:
-    float x, y;
+    float _x, _y;
 };
 
 Vector2d operator*(float scalar, const Vector2d &v);

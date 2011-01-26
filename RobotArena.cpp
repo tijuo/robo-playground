@@ -100,19 +100,19 @@ void RobotArena::updateRobotPos( Robot &robot, const Vector2d &v )
 {
   float x, y;
 
-  Vector2d pos = robot.getPosition() + v * deltaTime;
+  Vector2d pos = robot.position() + v * deltaTime;
 
-  x = pos.getX();
-  y = pos.getY();
+  x = pos.x();
+  y = pos.y();
   pos.setX( x < ROBOT_WIDTH / 2 ? ROBOT_WIDTH / 2 : (x > width - 1 - ROBOT_WIDTH / 2? width - 1 - ROBOT_WIDTH / 2: x) );
   pos.setY( y < ROBOT_WIDTH / 2 ? ROBOT_WIDTH / 2 : (y > height - 1 - ROBOT_WIDTH / 2? height - 1 - ROBOT_WIDTH / 2: y) );
   robot.setPosition(pos);
 
-  if( robot.getEnergy() > 0 && (pos.getX() == ROBOT_WIDTH / 2 || 
-      pos.getX() == width - 1 - ROBOT_WIDTH / 2
-      || pos.getY() == ROBOT_WIDTH / 2 || pos.getY() == height - 1 - ROBOT_WIDTH / 2) )
+  if( robot.energy() > 0 && (pos.x() == ROBOT_WIDTH / 2 || 
+      pos.x() == width - 1 - ROBOT_WIDTH / 2
+      || pos.y() == ROBOT_WIDTH / 2 || pos.y() == height - 1 - ROBOT_WIDTH / 2) )
   {
-    robot.setEnergy(robot.getEnergy()-1);
+    robot.setEnergy(robot.energy()-1);
   }
 }
 
@@ -126,7 +126,7 @@ Robot *RobotArena::getNearestRobot( const Robot &robot )
   {
     _tRobot = robots[i];
 
-    dist = (_tRobot->getPosition() - robot.getPosition()).magnitude();
+    dist = (_tRobot->position() - robot.position()).magnitude();
 
     if( (dist < nearestDist || nearest == NULL) && _tRobot != &robot )
     {
@@ -155,12 +155,12 @@ void RobotArena::doThink()
       if( robots[j] == bullets[i].shooter )
         continue;
 
-      a = robots[j]->getPosition() - bullets[i].position;
-      b = robots[j]->getVelocity() - bullets[i].velocity;
+      a = robots[j]->position() - bullets[i].position;
+      b = robots[j]->velocity() - bullets[i].velocity;
 /*
-      std::cout << "Robot Position: " << robots[j]->getPosition().str();
+      std::cout << "Robot Position: " << robots[j]->position().str();
       std::cout << " Bullet Position: " << bullets[i].position.str() << std::endl;
-      std::cout << "Robot Velocity: " << robots[j]->getVelocity().str();
+      std::cout << "Robot Velocity: " << robots[j]->velocity().str();
       std::cout << " Bullet Velocity: " << bullets[i].velocity.str() << std::endl;
 */
       k = (a*b)*(a*b) - 4.0 * b*b*(a*a - (BULLET_WIDTH+ROBOT_WIDTH)*(BULLET_WIDTH+ROBOT_WIDTH)/4.0);
@@ -186,7 +186,7 @@ void RobotArena::doThink()
       {
 /*
         std::cout << "Collision! t0: " << t0 << "t1: " << t1 << " k: " << k << std::endl;
-        std::cout << "a: " << robots[j]->getPosition().str() << " b: " << robots[j]->getVelocity().str() << std::endl;
+        std::cout << "a: " << robots[j]->position().str() << " b: " << robots[j]->velocity().str() << std::endl;
         std::cout << "a: " << bullets[i].position.str() << " b: " << bullets[i].velocity.str() << std::endl;*/
         t0 = (t0 < 0.0 ? 0.0 : t0);
         t1 = (t1 < 0.0 ? 0.0 : t1);
@@ -205,17 +205,17 @@ void RobotArena::doThink()
    //   std::cout << "Collision" << std::endl;
       bullets[i].shooter->increaseHitCount();
 /*
-      if( coll_robot->getHP() <= 4.5 * bullets[i].shooter->getAttackPower() / (1 + coll_robot->getDefensePower() ) )
+      if( coll_robot->hp() <= 4.5 * bullets[i].shooter->attackPower() / (1 + coll_robot->defensePower() ) )
       {
-        coll_robot->doDamage( coll_robot->getHP() );
+        coll_robot->doDamage( coll_robot->hp() );
       }
       else
       {
-        coll_robot->doDamage( 4.5 * bullets[i].shooter->getAttackPower() / (1 + coll_robot->getDefensePower() ) );
+        coll_robot->doDamage( 4.5 * bullets[i].shooter->attackPower() / (1 + coll_robot->defensePower() ) );
       }
 */
-      coll_robot->doDamage(coll_robot->getHP());
-      if( coll_robot->getHP() == 0 )
+      coll_robot->doDamage(coll_robot->hp());
+      if( coll_robot->hp() == 0 )
       {
         bullets[i].shooter->increaseKillCount();
         coll_robot->setEnergy(0.0);  // XXX: Remove the bot from the arena
@@ -232,7 +232,7 @@ void RobotArena::doThink()
   {
     robots[i]->think();
 
-    if( robots[i]->getEnergy() < robots[i]->getRequiredPower() )
+    if( robots[i]->energy() < robots[i]->requiredPower() )
     {
       robots[i]->setEnergy(0);
       robots.erase( robots.begin() + i, robots.begin() + i + 1 );
@@ -242,13 +242,13 @@ void RobotArena::doThink()
   }
 
   for( unsigned i=0; i < robots.size(); i++ )
-    updateRobotPos( *robots[i], robots[i]->getVelocity() );
+    updateRobotPos( *robots[i], robots[i]->velocity() );
 
   for( unsigned i=0; i < bullets.size(); i++ )
   {
     bullets[i].position = bullets[i].position + bullets[i].velocity * deltaTime;
 
-    if( bullets[i].position.getX() < 0 || bullets[i].position.getY() < 0 )
+    if( bullets[i].position.x() < 0 || bullets[i].position.y() < 0 )
     {
       bullet = &bullets[i];
       //bullets[i] = bullets[len-1];
@@ -261,11 +261,11 @@ void RobotArena::doThink()
 
   for( unsigned i=0; i < robots.size(); i++ )
   {
-    if( robots[i]->isAttacking() && robots[i]->getVelocity().magnitude() > 0.0 )
+    if( robots[i]->isAttacking() && robots[i]->velocity().magnitude() > 0.0 )
     {
       bullet = new struct Bullet;
-      bullet->velocity = robots[i]->getVelocity().normalize() * BULLET_SPEED;
-      bullet->position = robots[i]->getPosition() + robots[i]->getVelocity().normalize() * ((ROBOT_WIDTH/2.0)+(BULLET_WIDTH));
+      bullet->velocity = robots[i]->velocity().normalize() * BULLET_SPEED;
+      bullet->position = robots[i]->position() + robots[i]->velocity().normalize() * ((ROBOT_WIDTH/2.0)+(BULLET_WIDTH));
       bullet->shooter = robots[i];
       bullet->shooter->increaseShotCount();
       bullets.push_back(*bullet);
@@ -287,16 +287,16 @@ void RobotArena::render()
 
   for( unsigned i=0; i < robots.size(); i++ )
   {
-    v = robots[i]->getPosition();
+    v = robots[i]->position();
 
-    blit(robotBmp, arenaBmp, 0, 0, v.getX()-ROBOT_WIDTH/2, v.getY()-ROBOT_HEIGHT/2, ROBOT_WIDTH, ROBOT_HEIGHT);
+    blit(robotBmp, arenaBmp, 0, 0, v.x()-ROBOT_WIDTH/2, v.y()-ROBOT_HEIGHT/2, ROBOT_WIDTH, ROBOT_HEIGHT);
   }
 
   for( unsigned i=0; i < bullets.size(); i++ )
   {
     struct Bullet* b;
     b = &bullets[i];
-    blit(bulletBmp, arenaBmp, 0, 0, b->position.getX(), b->position.getY(), BULLET_WIDTH, BULLET_HEIGHT);
+    blit(bulletBmp, arenaBmp, 0, 0, b->position.x(), b->position.y(), BULLET_WIDTH, BULLET_HEIGHT);
   }
 
   blit(arenaBmp, screen, 0, 0, 0, 0, width, height);

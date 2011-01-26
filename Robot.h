@@ -23,78 +23,88 @@ const float initialEnergy = 2000.0;
 class Robot
 {
   public:
-    Robot() : dna(NULL), robotArena(NULL), maxEnergy(initialEnergy) { }
+    Robot() : _dna(NULL), brain(NULL), _maxEnergy(initialEnergy), robotArena(NULL) { }
     Robot(const char *filename, RobotArena * const arena );
     Robot( const Robot &robot );
     Robot(const RobotDna &dna, RobotArena * const arena );
 
     Robot& operator=(const Robot &rhs) 
     { 
-      this->dna = new RobotDna(*rhs.dna);
+      this->_dna = new RobotDna(*rhs._dna);
       this->brain = new Brain(*rhs.brain);
-      this->velocity = new Vector2d(*rhs.velocity);
-      this->position = new Vector2d(*rhs.position);
+      this->_velocity = rhs._velocity;
+      this->_position = rhs._position;
 
-      this->attackPwr = rhs.attackPwr;
-      this->defensePwr = rhs.defensePwr;
-      this->maxSpeed = rhs.maxSpeed;
-      this->hp = rhs.hp;
-      this->maxHP = rhs.maxHP;
-      this->powerRequired = rhs.powerRequired;
+      this->_attackPwr = rhs._attackPwr;
+      this->_defensePwr = rhs._defensePwr;
+      this->_maxSpeed = rhs._maxSpeed;
+      this->_hp = rhs._hp;
+      this->_maxHP = rhs._maxHP;
+      this->_powerRequired = rhs._powerRequired;
       this->robotArena = rhs.robotArena;
-      this->maxEnergy = rhs.maxEnergy;
+      this->_maxEnergy = rhs._maxEnergy;
+
+      this->_killCount = rhs._killCount;
+      this->_shotCount = rhs._shotCount;
+      this->_hitCount = rhs._hitCount;
 
       return *this;
     }
 
     ~Robot();
 
+    void doDamage( unsigned int damage ) 
+      { _hp -= (damage >= _hp ? _hp : damage); }
     void think();
-    void setEnergy( float val ) { energy = val; }
+    void setEnergy( float val )
+      { _energy = (val < 0 ? 0 : (val > _maxEnergy ? _maxEnergy : val )); }
+    void setPosition( const Vector2d &pos ) { _position = pos; }
 
-    void setPosition( const Vector2d &pos ) { *position = pos; }
-    Vector2d getPosition() const { return *position; }
-    Vector2d getVelocity() const { return *velocity; }
-    RobotDna *getDna() const { return dna; }
-    Brain getBrain() const { return *brain; }
-    unsigned int getAttackPower() const { return attackPwr; }
-    unsigned int getDefensePower() const { return defensePwr; }
-    unsigned int getHP() const { return hp; }
-    unsigned int getMaxHP() const { return maxHP; }
-    unsigned int getMaxSpeed() const { return maxSpeed; }
-    unsigned int getKillCount() const { return killCount; }
-    float getRequiredPower() const { return powerRequired; }
-    float getEnergy() const { return energy; }
-    void increaseKillCount( ) { killCount++; }
-    void increaseHitCount() { hitCount++; }
-    void increaseShotCount() { shotCount++; }
-    unsigned int getShotCount() const { return shotCount; }
-    void doDamage( unsigned int damage ) { hp -= (damage >= hp ? hp : damage); }
-    unsigned int getHitCount() const { return hitCount; }
+    Vector2d position() const { return _position; }
+    Vector2d velocity() const { return _velocity; }
+    RobotDna *dna() const { return _dna; }
+//    Brain getBrain() const { return *brain; }
+    unsigned int attackPower() const { return _attackPwr; }
+    unsigned int defensePower() const { return _defensePwr; }
+    float energy() const { return _energy; }
+    unsigned int killCount() const { return _killCount; }
+    unsigned int hitCount() const { return _hitCount; }
+    unsigned int hp() const { return _hp; }
+    unsigned int maxHP() const { return _maxHP; }
+    unsigned int maxSpeed() const { return _maxSpeed; }
+    float requiredPower() const { return _powerRequired; }
+    unsigned int shotCount() const { return _shotCount; }
+
+    Vector2d robotDistance( const Robot &other ) const
+      { return other._position - _position; }
+
+    void increaseKillCount( ) { _killCount++; }
+    void increaseHitCount() { _hitCount++; }
+    void increaseShotCount() { _shotCount++; }
+
    // float getTurretRot() const { return turretRot; }
    // unsigned int getId() const { return id; }
     //void setId( unsigned _id ) { id = _id; }
 
-    bool isAttacking() const 
-    {
-      return brain->getOutput( ATTACK ) >= 0.5 ? true : false; 
-    }
+    bool isAttacking() const
+      { return brain->getOutput( ATTACK ) >= 0.5 ? true : false; }
 
-    float getOutput(enum OutputNames output) const { return brain->getOutput(output); }
+    float getOutput(enum OutputNames output) const
+      { return brain->getOutput(output); }
 
   private:
-    RobotDna *dna;
+    RobotDna *_dna;
     Brain *brain;
-    Vector2d *velocity, *position;
-    unsigned int attackPwr, defensePwr;
-    unsigned int maxSpeed;
-    unsigned int hp, maxHP;
-    unsigned int killCount, hitCount, shotCount;
-    float energy, powerRequired;
-    RobotArena *robotArena;
+    Vector2d _velocity, _position;
+    unsigned int _attackPwr, _defensePwr;
+    unsigned int _maxSpeed;
+    unsigned int _hp, _maxHP;
+    unsigned int _killCount, _hitCount, _shotCount;
+    float _energy, _powerRequired;
     // Color color;
     //unsigned int id;
-    float maxEnergy;
+    float _maxEnergy;
+    RobotArena *robotArena;
     friend class RobotArena;
 };
 

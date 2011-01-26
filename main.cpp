@@ -77,7 +77,7 @@ unsigned numRobotsLeft()
 
   for( unsigned i=0; i < NUM_ROBOTS; i++ )
   {
-    if( robots[i]->getEnergy() >= robots[i]->getRequiredPower() )
+    if( robots[i]->energy() >= robots[i]->requiredPower() )
       count++;
   }
 
@@ -93,7 +93,7 @@ void increaseScores()
 {
   for( unsigned i=0; i < NUM_ROBOTS; i++ )
   {
-    if( robots[i]->getEnergy() > 0 )
+    if( robots[i]->energy() > 0 )
       ;//score[i]++;
   }
 }
@@ -102,15 +102,15 @@ void addKills()
 {
   for( unsigned i=0; i < NUM_ROBOTS; i++ )
   {
-    maxKills = max( robots[i]->getKillCount(), maxKills );
+    maxKills = max( robots[i]->killCount(), maxKills );
 
-    score[i] += robots[i]->getKillCount() * 100;
+    score[i] += robots[i]->killCount() * 100;
 
-    if( robots[i]->getShotCount() > 0 )
-    	maxAccuracy = fmax(maxAccuracy, robots[i]->getHitCount() / (double)robots[i]->getShotCount());
+    if( robots[i]->shotCount() > 0 )
+    	maxAccuracy = fmax(maxAccuracy, robots[i]->hitCount() / (double)robots[i]->shotCount());
 
-    if( robots[i]->getShotCount() > 0 )
-      score[i] += pow( 2, 12 * (robots[i]->getHitCount() / (double)robots[i]->getShotCount()) );
+    if( robots[i]->shotCount() > 0 )
+      score[i] += pow( 2, 12 * (robots[i]->hitCount() / (double)robots[i]->shotCount()) );
   }
 }
 
@@ -140,12 +140,8 @@ int main(int argc, char *argv[])
  // install_keyboard();
   set_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480, 0, 0);
   RobotArena arena = RobotArena( 640, 480 );
-
+//  Robot *test = new Robot(NULL, &arena);
   //srand( time(NULL) );
-
-  //arena.render();
-
-  //readkey();
 
   robots[1] = new Robot("dna/robo_dna1.dna", &arena );
   robots[2] = new Robot("dna/robo_dna2.dna", &arena );
@@ -172,7 +168,7 @@ int main(int argc, char *argv[])
   for( unsigned i=10; i < NUM_ROBOTS; i++ )
   {
     for( unsigned j=0; j < 1000; j++ )
-      robots[i]->getDna()->mutate();
+      robots[i]->dna()->mutate();
   }
 
   for( unsigned i=0; i < NUM_ROBOTS; i++ )
@@ -204,7 +200,7 @@ int main(int argc, char *argv[])
 	bonusAwarded = true;
         for( unsigned i=0; i < NUM_ROBOTS; i++ )
         {
-          if( robots[i]->getEnergy() >= robots[i]->getRequiredPower() )
+          if( robots[i]->energy() >= robots[i]->requiredPower() )
           {
             score[i] += 100;
             oneLeft = true;
@@ -224,16 +220,12 @@ int main(int argc, char *argv[])
 
     for( unsigned i=0; i < NUM_ROBOTS; i++ )
     {
-      if( robots[i]->getKillCount() == 0 )
+      if( robots[i]->killCount() == 0 )
         score[i] -= 100;
 
-      if( robots[i]->getHitCount() == 0 )
+      if( robots[i]->hitCount() == 0 )
         score[i] -= 150;
-
-      //for( unsigned i=0; i < NUM_ROBOTS; i++ )
-        //std::cout << "score[" << i << "]: " << score[i] << std::endl;
     }
-  //  std::cout << "All robots are dead" << std::endl;
 
     arena.clearAll();
     calcScoreStats();
@@ -244,16 +236,13 @@ int main(int argc, char *argv[])
     {
       pickTwoRobots( &robot1, &robot2 );
 
-      //std::cout << i << std::endl;
-
- //     childDna = new RobotDna();
-      robot1->getDna()->crossover( *robot2->getDna(), &childDna, NULL );
+      robot1->dna()->crossover( *robot2->dna(), &childDna, NULL );
 
       for( unsigned j=0; j < 1 + ((unsigned)rand() % 100 == 0 ? 3 : 0); j++ )
         childDna->mutate();
 
       robots2[i] = new Robot( *childDna, &arena );
-//std::cout << "Deleting..." << std::endl;
+
       delete childDna;
       childDna = NULL;
     }
